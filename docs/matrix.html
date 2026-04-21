@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoSignal — Dyadic Matrix</title>
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="site-header">
+    <nav>
+      <a href="index.html" class="logo">◈ GEOSIGNAL</a>
+      <a href="index.html">Signals</a>
+      <a href="globe.html">Globe</a>
+      <a href="backtest.html">Backtest</a>
+      <a href="methodology.html">Methodology</a>
+    </nav>
+  </header>
+
+  <main id="matrix-view">
+    <!-- Dyadic heatmap — spec §4.5 -->
+    <!-- 20×20 grid: G20 + EU majors + key conflict states -->
+    <!-- Cell colour = mean Goldstein tone, source → target -->
+
+    <h1>Dyadic Matrix</h1>
+    <p class="subtitle">Source → target event tone, Goldstein scale. Hover for details.</p>
+
+    <div id="matrix-controls">
+      <label>Window:
+        <select id="window-select">
+          <option value="7d">7 days</option>
+          <option value="30d" selected>30 days</option>
+          <option value="90d">90 days</option>
+        </select>
+      </label>
+      <label>
+        <input type="checkbox" id="include-nonstate" />
+        Include non-state actors
+      </label>
+    </div>
+
+    <div id="matrix-container" aria-label="Dyadic tone heatmap">
+      <!-- D3.js heatmap rendered by assets/js/matrix.js from docs/data/matrix.json -->
+      <p class="loading">Loading matrix…</p>
+    </div>
+  </main>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="assets/js/matrix.js"></script>
+</body>
+</html>

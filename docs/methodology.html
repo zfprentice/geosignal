@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoSignal — Methodology</title>
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="site-header">
+    <nav>
+      <a href="index.html" class="logo">◈ GEOSIGNAL</a>
+      <a href="index.html">Signals</a>
+      <a href="globe.html">Globe</a>
+      <a href="matrix.html">Matrix</a>
+      <a href="backtest.html">Backtest</a>
+    </nav>
+  </header>
+
+  <main id="methodology" class="prose">
+    <!-- Plain HTML essay — spec §4.7 -->
+    <!-- Every formula, every weight, every data source. -->
+    <!-- Complete enough that an adversarial statistician could reproduce every number. -->
+
+    <h1>Methodology</h1>
+
+    <p class="lede">
+      Every number on this site is produced by a deterministic formula.
+      This page documents each formula so that any reader can reproduce the scores
+      from the listed public data sources.
+    </p>
+
+    <h2>1. Data sources</h2>
+    <!-- Document: GDELT 2.0 DOC API, GDELT Events BigQuery, ACLED, World Bank WDI, IMF WEO, FRED, Reuters RSS -->
+    <!-- Spec §2.1 -->
+
+    <h2>2. Signal primitives</h2>
+
+    <h3>2.1 Robust deviation score (Primitive 1)</h3>
+    <!-- Document MAD z-score formula: (x - median) / (1.4826 * MAD + epsilon) -->
+    <!-- Explain why MAD over std; cite Rousseeuw & Croux 1993 -->
+
+    <h3>2.2 Trend slope — Theil-Sen (Primitive 2)</h3>
+    <!-- Document: median of pairwise slopes over 30d window -->
+    <!-- Explain why Theil-Sen over OLS -->
+
+    <h3>2.3 Change-point detection — CUSUM (Primitive 3)</h3>
+    <!-- Document CUSUM formula, threshold (4σ), reset behaviour -->
+
+    <h3>2.4 Dyadic aggregation (Primitive 4)</h3>
+    <!-- Document: D[source, target, t] = Σ Goldstein tone -->
+
+    <h3>2.5 Contagion (Primitive 5)</h3>
+    <!-- Document: w_geo = exp(-distance/2000), w_dyad = normalised event volume -->
+    <!-- Explain Sahel intuition -->
+
+    <h3>2.6 Thematic exposure (Primitive 6)</h3>
+    <!-- Document: MiniLM embeddings → HDBSCAN → Gemini labels (prose only) -->
+
+    <h2>3. The Watchlist Index</h2>
+    <!-- Document: Watchlist = w1·Deviation + w2·Trend + w3·Contagion + w4·Fragility -->
+    <!-- Current weights: w1=0.40, w2=0.25, w3=0.20, w4=0.15 -->
+    <!-- How output is scaled to 0-10 via percentile rank -->
+
+    <h2>4. Structural fragility layer</h2>
+    <!-- Document: WB governance indicators, debt/GDP, EMBI+, IMF inflation -->
+
+    <h2>5. Signals feed ranking</h2>
+    <!-- Document: Score_rank = 0.5·|z_dev| + 0.3·trend + 0.2·contagion -->
+
+    <h2>6. What Gemini does (and doesn't do)</h2>
+    <!-- Explicit: Gemini writes prose. Gemini never assigns scores. -->
+
+    <h2>7. Backtest methodology</h2>
+    <!-- How weights were tuned; what "flagged" means; false-positive context -->
+
+    <h2>8. Limitations</h2>
+    <!-- GDELT coverage gaps, ACLED lag, fast-onset events, etc. -->
+
+    <p class="footnote">
+      All code is open-source at
+      <a href="https://github.com/zfprentice/geosignal">github.com/zfprentice/geosignal</a>.
+    </p>
+  </main>
+</body>
+</html>

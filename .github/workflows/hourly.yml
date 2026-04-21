@@ -1,0 +1,33 @@
+name: Hourly — GDELT headlines
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  fetch-headlines:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch GDELT DOC headlines
+        env:
+          # No secrets needed for GDELT DOC API (public)
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python pipeline/sources/gdelt_doc.py
+
+      - name: Commit updated headlines cache
+        run: |
+          git config user.name "geosignal-bot"
+          git config user.email "bot@geosignal.xyz"
+          git add -A
+          git diff --cached --quiet || git commit -m "chore: hourly headlines $(date -u +%Y-%m-%dT%H:%M)Z"
+          git push

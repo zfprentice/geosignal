@@ -1,0 +1,46 @@
+name: Weekly — clustering + Substack draft
+
+on:
+  schedule:
+    - cron: '30 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch Reuters RSS headlines
+        run: python pipeline/sources/reuters_rss.py
+
+      - name: Thematic clustering (embeddings + HDBSCAN + Gemini labels)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python pipeline/signals/thematic.py
+
+      - name: Refresh backtest
+        run: python pipeline/backtest/run_backtest.py
+
+      - name: Generate Substack draft
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          ALERT_EMAIL_TO: ${{ secrets.ALERT_EMAIL_TO }}
+        run: python pipeline/publishing/draft_substack.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "geosignal-bot"
+          git config user.email "bot@geosignal.xyz"
+          git add -A
+          git diff --cached --quiet || git commit -m "data: weekly clustering + draft $(date -u +%Y-%m-%d)"
+          git push

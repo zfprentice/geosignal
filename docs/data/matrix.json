@@ -1,0 +1,9 @@
+{
+  "generated_at": null,
+  "countries": [],
+  "windows": {
+    "7d": {"matrix": [], "counts": []},
+    "30d": {"matrix": [], "counts": []},
+    "90d": {"matrix": [], "counts": []}
+  }
+}

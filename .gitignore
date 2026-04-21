@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Secrets
+.env
+*.json.secret
+secrets/
+
+# Data / large files
+hist/*.parquet
+docs/data/history/*.json
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.iml

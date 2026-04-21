@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoSignal — Globe</title>
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="site-header">
+    <nav>
+      <a href="index.html" class="logo">◈ GEOSIGNAL</a>
+      <a href="index.html">Signals</a>
+      <a href="matrix.html">Matrix</a>
+      <a href="backtest.html">Backtest</a>
+      <a href="methodology.html">Methodology</a>
+    </nav>
+  </header>
+
+  <main id="globe-view">
+    <!-- Globe rendered by assets/js/globe.js using globe.gl — spec §4.6 -->
+    <!-- Additions vs v1: theme filter, time slider, click → /country/:iso3 -->
+
+    <div id="controls">
+      <div id="theme-filter" aria-label="Filter by theme">
+        <!-- Theme tag pills injected by globe.js from docs/data/themes.json -->
+      </div>
+      <div id="time-slider" aria-label="Historical date slider">
+        <!-- Slider injected by globe.js; pulls from docs/data/history/ -->
+      </div>
+    </div>
+
+    <div id="globe-container">
+      <!-- globe.gl canvas mounted here -->
+    </div>
+
+    <div id="globe-legend">
+      <!-- Watchlist Index colour scale legend -->
+    </div>
+  </main>
+
+  <!-- globe.gl CDN — replace with pinned version in production -->
+  <script src="https://unpkg.com/globe.gl"></script>
+  <script src="assets/js/globe.js"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoSignal — Geopolitical Signal Monitor</title>
+  <meta name="description" content="Weekly scores for ~180 countries on a forward-looking Watchlist Index built from GDELT and public macro data." />
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <!-- Space Mono + Syne — spec §4.1 -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="site-header">
+    <nav>
+      <span class="logo">◈ GEOSIGNAL</span>
+      <span class="status-live">• LIVE</span>
+      <span class="last-updated" id="last-updated"></span>
+      <a href="globe.html">Globe</a>
+      <a href="matrix.html">Matrix</a>
+      <a href="backtest.html">Backtest</a>
+      <a href="methodology.html">Methodology</a>
+    </nav>
+  </header>
+
+  <main id="signals-feed">
+    <!-- Signals feed rendered by assets/js/signals.js from docs/data/signals.json -->
+    <!-- Spec §1.2 and §4.2 -->
+    <h1>This Week's Signals</h1>
+    <div id="signals-list" aria-label="Top geopolitical signals this week">
+      <!-- Signal cards injected here by signals.js -->
+      <p class="loading">Loading signals…</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>
+      Scores are deterministic. <a href="methodology.html">Read the methodology.</a>
+      Prose briefs by Gemini 1.5 Flash — Gemini never assigns scores.
+    </p>
+    <p>
+      <a href="https://substack.com">Subscribe to the Monday briefing →</a>
+    </p>
+  </footer>
+
+  <script src="assets/js/signals.js"></script>
+</body>
+</html>

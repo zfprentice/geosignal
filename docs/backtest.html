@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoSignal — Backtest</title>
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="site-header">
+    <nav>
+      <a href="index.html" class="logo">◈ GEOSIGNAL</a>
+      <a href="index.html">Signals</a>
+      <a href="globe.html">Globe</a>
+      <a href="matrix.html">Matrix</a>
+      <a href="methodology.html">Methodology</a>
+    </nav>
+  </header>
+
+  <main id="backtest-view">
+    <!-- Historical validation page — spec §1.3 and §4.4 -->
+    <!-- This is the MAP credibility page. Be aggressively honest. -->
+
+    <h1>Backtest</h1>
+    <p class="subtitle">
+      Did the model flag known events before mainstream coverage?
+      Honest results — including misses.
+    </p>
+
+    <div id="backtest-summary-table" aria-label="Backtest summary">
+      <!-- Summary table: event | percentile at T-7 | flagged? | max watchlist in 30d pre-event -->
+      <!-- Rendered by assets/js/backtest.js from docs/data/backtest.json -->
+    </div>
+
+    <div id="backtest-panels">
+      <!-- One panel per event. Each panel:
+           - Event title and date
+           - 180-day Watchlist chart (90d pre + 90d post T-0)
+           - Vertical rule at T-0
+           - Annotations at T-30, T-14, T-7
+           - FLAGGED / MISSED badge
+           - Prose explanation of what drove (or didn't drive) the signal
+      -->
+      <p class="loading">Loading backtest data…</p>
+    </div>
+  </main>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="assets/js/backtest.js"></script>
+</body>
+</html>

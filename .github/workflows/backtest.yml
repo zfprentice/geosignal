@@ -1,0 +1,43 @@
+name: Backtest — manual trigger
+
+on:
+  workflow_dispatch:
+    inputs:
+      tune_weights:
+        description: 'Run weight tuning grid search after backtest'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY_JSON }}
+
+      - name: Run backtest
+        run: python pipeline/backtest/run_backtest.py
+
+      - name: Tune weights (optional)
+        if: ${{ inputs.tune_weights == 'true' }}
+        run: python pipeline/backtest/tune_weights.py
+
+      - name: Commit results
+        run: |
+          git config user.name "geosignal-bot"
+          git config user.email "bot@geosignal.xyz"
+          git add backtest_results.json docs/data/backtest.json
+          git diff --cached --quiet || git commit -m "data: backtest results $(date -u +%Y-%m-%d)"
+          git push

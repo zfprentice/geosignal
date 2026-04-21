@@ -1,0 +1,78 @@
+name: Daily — full recompute
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  recompute:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY_JSON }}
+
+      - name: Fetch GDELT events (BigQuery)
+        run: python pipeline/sources/gdelt_events.py
+
+      - name: Fetch ACLED data
+        env:
+          ACLED_API_KEY: ${{ secrets.ACLED_API_KEY }}
+          ACLED_EMAIL: ${{ secrets.ACLED_EMAIL }}
+        run: python pipeline/sources/acled.py
+
+      - name: Fetch FRED data
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python pipeline/sources/fred.py
+
+      - name: Compute signal primitives
+        run: |
+          python pipeline/signals/deviation.py
+          python pipeline/signals/trend.py
+          python pipeline/signals/changepoint.py
+          python pipeline/signals/dyadic.py
+          python pipeline/signals/contagion.py
+
+      - name: Compute Watchlist Index
+        run: python pipeline/scoring/watchlist.py
+
+      - name: Generate country briefs (Gemini)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python pipeline/briefs/gemini.py
+
+      - name: Build output JSON
+        run: |
+          python pipeline/publishing/build_countries_json.py
+          python pipeline/publishing/build_signals_feed.py
+          python pipeline/publishing/build_matrix_json.py
+
+      - name: Write parquet snapshot
+        run: python pipeline/storage/parquet_writer.py
+
+      - name: Check alert thresholds
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          ALERT_EMAIL_TO: ${{ secrets.ALERT_EMAIL_TO }}
+        run: python pipeline/publishing/build_signals_feed.py --alerts
+
+      - name: Commit and push
+        run: |
+          git config user.name "geosignal-bot"
+          git config user.email "bot@geosignal.xyz"
+          git add -A
+          git diff --cached --quiet || git commit -m "data: daily recompute $(date -u +%Y-%m-%d)"
+          git push

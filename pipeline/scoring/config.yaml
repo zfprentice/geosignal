@@ -1,0 +1,49 @@
+# Watchlist Index weights (spec §2.3)
+# Sum must equal 1.0
+# Tuned via backtest in pipeline/backtest/tune_weights.py
+weights:
+  w1: 0.40  # Deviation  — what's anomalous now
+  w2: 0.25  # Trend      — 30-day direction
+  w3: 0.20  # Contagion  — neighbourhood spillover
+  w4: 0.15  # Fragility  — structural baseline
+
+# Signal feed ranking weights (spec §1.2)
+signal_rank_weights:
+  z_deviation: 0.50
+  trend_slope: 0.30
+  contagion: 0.20
+
+# Deviation scoring (spec §2.2, Primitive 1)
+deviation:
+  baseline_window_days: 365
+  epsilon: 1.0                 # prevent division-by-zero
+  clip_zscore: 5.0             # clip robust z at ±5
+
+# Trend scoring (spec §2.2, Primitive 2)
+trend:
+  window_days: 30
+
+# CUSUM change-point detection (spec §2.2, Primitive 3)
+changepoint:
+  threshold_sigma: 4.0
+  allowance_sigma: 0.5
+  history_days: 180
+
+# Contagion (spec §2.2, Primitive 5)
+contagion:
+  geo_decay_km: 2000
+  dyadic_window_days: 30
+
+# Alert thresholds (spec §5.2)
+alerts:
+  wow_delta_threshold: 2.0     # |watchlist_wow_delta| > 2.0 triggers alert
+  top_n_entry: 10              # flag if newly entering top N
+
+# Output paths
+output:
+  countries_json: docs/data/countries.json
+  signals_json: docs/data/signals.json
+  matrix_json: docs/data/matrix.json
+  backtest_json: docs/data/backtest.json
+  themes_json: docs/data/themes.json
+  hist_dir: hist/
