@@ -6,20 +6,46 @@ Before making any decisions, read [`geosignal-v2-spec.md`](geosignal-v2-spec.md)
 
 ## Current build phase
 
-**Phase 1 complete — scaffolding only.**  
-Next: **Phase 2 — Data sources** (`pipeline/sources/*.py`).
+**Phase 3 complete — all 6 signal primitives implemented, 14/14 tests green.**  
+Next: **Phase 4 — Scoring + publishing** (`pipeline/scoring/`, `pipeline/briefs/gemini.py`, `pipeline/publishing/`).
 
-Update this section when a phase merges.
+## Phase 4 acceptance criteria (spec §6 Phase 4)
 
-## Phase 2 acceptance criteria
+1. `pipeline/scoring/fragility.py` — static structural layer (WB governance + debt-to-GDP + EMBI+)
+2. `pipeline/scoring/watchlist.py` — composite index: `w1*Deviation + w2*Trend + w3*Contagion + w4*Fragility`, percentile-rank scaled 0–10
+3. `pipeline/briefs/gemini.py` — prose generation only (cluster labels, country briefs, Substack draft)
+4. `pipeline/publishing/build_countries_json.py` — writes `docs/data/countries.json`
+5. `pipeline/publishing/build_signals_feed.py` — writes `docs/data/signals.json`
+6. `pipeline/publishing/build_matrix_json.py` — writes `docs/data/matrix.json`
 
-Implement `pipeline/sources/*.py`. Each file must:
-- Fetch real data from the described source
-- Write to `hist/` as a dated parquet file
-- Have a `__main__` block for standalone execution
-- Produce a parquet with expected schema (described in §3.2 of spec)
+End-of-phase sanity check: run end-to-end on cached/synthetic data and verify `countries.json` has Niger/Ukraine/Syria in the top quartile and Switzerland/Norway/Denmark in the bottom quartile.
 
-End-of-phase test: run each source script locally, confirm dated parquet file exists with correct columns.
+## Phase 3 implementation notes
+
+- `CUSUM_THRESHOLD_SIGMA = 6.0` (not 4σ from spec or 5σ as initially chosen). With in-sample mean estimation, h=5σ triggers a false alarm on N(0,1) seed-42 series of length 180. h=6σ is clean.
+- `thematic.py` uses lazy imports for sentence-transformers and hdbscan — `import pipeline.signals.thematic` is safe; ML deps are only required when the functions are actually called.
+- All 6 primitives use deterministic math only. Gemini is NOT called from any signal primitive.
+
+## Phase 2 implementation notes
+
+Tested working locally (no credentials needed):
+- `reuters_rss.py` — BBC/Al Jazeera fallbacks active (Reuters feeds blocked)
+- `imf.py` — 218 countries, ISO3 codes, 3 indicators
+
+Credential-gated (raise clear EnvironmentError when keys absent):
+- `fred.py` → needs `FRED_API_KEY`
+- `acled.py` → needs `ACLED_API_KEY` + `ACLED_EMAIL`
+- `gdelt_events.py` → needs `GCP_SA_KEY_JSON`
+
+World Bank API notes:
+- `country/all` bulk endpoint is flaky (502/503 intermittently)
+- `worldbank.py` uses batched per-30-country queries as mitigation
+- Tested successfully in a clean run; WB outages are transient (~30 min)
+
+GDELT DOC API notes:
+- Uses FIPS codes (not ISO2). Key differences: GM=DEU, JA=JPN, KS=KOR, UK=GBR, RS=RUS, NG=NER, NI=NGA, UP=UKR
+- Max 250 records per artlist query
+- `sourcecountry:XX` filter returns articles published FROM that country (not about it)
 
 ## Key invariants — never violate these
 

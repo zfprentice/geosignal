@@ -61,7 +61,11 @@ def write_snapshot(panel: pd.DataFrame, date: datetime, hist_dir: Path = HIST_DI
     Returns:
         Path to the written parquet file.
     """
-    raise NotImplementedError
+    path = Path(hist_dir)
+    path.mkdir(parents=True, exist_ok=True)
+    file_path = path / f"{date.strftime('%Y-%m-%d')}.parquet"
+    panel.to_parquet(file_path, index=False)
+    return file_path
 
 
 def read_snapshot(date: datetime, hist_dir: Path = HIST_DIR) -> pd.DataFrame:
@@ -77,7 +81,12 @@ def read_snapshot(date: datetime, hist_dir: Path = HIST_DIR) -> pd.DataFrame:
     Raises:
         FileNotFoundError: If no snapshot exists for the given date.
     """
-    raise NotImplementedError
+    file_path = Path(hist_dir) / f"{date.strftime('%Y-%m-%d')}.parquet"
+    if not file_path.exists():
+        raise FileNotFoundError(
+            f"No snapshot for {date.strftime('%Y-%m-%d')}: {file_path}"
+        )
+    return pd.read_parquet(file_path)
 
 
 def read_country_history(
@@ -100,7 +109,24 @@ def read_country_history(
         DataFrame with PANEL_COLUMNS filtered to the given country,
         sorted by date ascending.
     """
-    raise NotImplementedError
+    dates = list_available_dates(hist_dir)
+    frames = []
+    for d in dates:
+        if start <= d <= end:
+            try:
+                df = read_snapshot(d, hist_dir)
+                rows = df[df["iso3"] == iso3]
+                if not rows.empty:
+                    frames.append(rows)
+            except FileNotFoundError:
+                pass
+    if not frames:
+        return pd.DataFrame(columns=PANEL_COLUMNS)
+    return (
+        pd.concat(frames, ignore_index=True)
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
 
 
 def list_available_dates(hist_dir: Path = HIST_DIR) -> list[datetime]:
@@ -112,7 +138,16 @@ def list_available_dates(hist_dir: Path = HIST_DIR) -> list[datetime]:
     Returns:
         List of datetime objects, sorted ascending.
     """
-    raise NotImplementedError
+    path = Path(hist_dir)
+    if not path.exists():
+        return []
+    result = []
+    for f in sorted(path.glob("????-??-??.parquet")):
+        try:
+            result.append(datetime.strptime(f.stem, "%Y-%m-%d"))
+        except ValueError:
+            pass
+    return result
 
 
 if __name__ == "__main__":
@@ -126,4 +161,7 @@ if __name__ == "__main__":
         print(f"Snapshot {args.date}: {len(df)} rows, {df.columns.tolist()}")
     else:
         dates = list_available_dates()
-        print(f"{len(dates)} snapshots available: {dates[0].date()} → {dates[-1].date()}")
+        if dates:
+            print(f"{len(dates)} snapshots available: {dates[0].date()} → {dates[-1].date()}")
+        else:
+            print("No snapshots available in hist/")
